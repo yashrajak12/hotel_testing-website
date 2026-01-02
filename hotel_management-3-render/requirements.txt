@@ -7,3 +7,5 @@ sqlalchemy==2.0.35
 
 reportlab
 gunicorn
+# requirements.txt mein add karo (ya upgrade karo)
+flask-migrate>=4.0.7
