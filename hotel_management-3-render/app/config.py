@@ -15,3 +15,6 @@ class Config:
         "pool_size": 10,
         "max_overflow": 5,
     }
+
+    SECRET_KEY = os.getenv('SECRET_KEY') or 'fallback-secret-key-for-development-only-do-not-use-in-production'
+
