@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if employee else 'Add New' }} Employee{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">{{ 'Edit' if employee else 'Add New' }} Employee</h2>
+    
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="POST" novalidate>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control"
+                               value="{{ employee.name if employee else '' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Age <span class="text-danger">*</span></label>
+                        <input type="number" name="age" class="form-control" min="18" max="100"
+                               value="{{ employee.age if employee else '' }}" required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Phone</label>
+                        <input type="tel" name="phone" class="form-control" pattern="[0-9]{10}"
+                               value="{{ employee.phone if employee else '' }}" placeholder="10-digit number">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Aadhaar Number</label>
+                        <input type="text" name="aadhaar_no" class="form-control" pattern="\d{12}" maxlength="12"
+                               value="{{ employee.aadhaar_no if employee else '' }}" placeholder="12 digits">
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label fw-bold">Address</label>
+                    <textarea name="address" class="form-control" rows="3">{{ employee.address if employee else '' }}</textarea>
+                </div>
+
+                <div class="row g-3 mt-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Salary (₹) <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" name="salary" class="form-control"
+                               value="{{ employee.salary if employee else '' }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Role <span class="text-danger">*</span></label>
+                        <select name="role" class="form-select" required>
+                            <option value="">Select Role</option>
+                            {% for role in ['Manager', 'Chef', 'Waiter', 'Cashier', 'Housekeeping'] %}
+                                <option value="{{ role }}"
+                                        {% if employee and employee.role and employee.role.value == role %}selected{% endif %}>
+                                    {{ role }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Hire Date <span class="text-danger">*</span></label>
+                        <input type="date" name="hire_date" class="form-control"
+                               value="{{ employee.hire_date.strftime('%Y-%m-%d') if employee and employee.hire_date else '' }}"
+                               required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Resign Date (optional)</label>
+                        <input type="date" name="resign_date" class="form-control"
+                               value="{{ employee.resign_date.strftime('%Y-%m-%d') if employee and employee.resign_date else '' }}">
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary me-2">Save Employee</button>
+                    <a href="{{ url_for('employee.list') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

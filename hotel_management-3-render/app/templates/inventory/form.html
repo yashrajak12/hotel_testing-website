@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if item else 'Add' }} Inventory Item{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ 'Edit' if item else 'Add New' }} Inventory Item</h2>
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label>Name</label>
+                    <input type="text" name="name" class="form-control" value="{{ item.name if item }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>Category</label>
+                    <select name="category" class="form-select" required>
+                        <option value="Grocery" {% if item and item.category == 'Grocery' %}selected{% endif %}>Grocery</option>
+                        <option value="Tools" {% if item and item.category == 'Tools' %}selected{% endif %}>Tools</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Quantity</label>
+                    <input type="number" name="quantity" class="form-control" value="{{ item.quantity if item }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>Unit (e.g., kg, pieces)</label>
+                    <input type="text" name="unit" class="form-control" value="{{ item.unit if item }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>Low Stock Threshold</label>
+                    <input type="number" name="low_stock_threshold" class="form-control" value="{{ item.low_stock_threshold if item }}" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="{{ url_for('inventory.list') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

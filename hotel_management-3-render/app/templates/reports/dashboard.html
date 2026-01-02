@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block title %}Reports & Analytics{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-white">Financial Overview</h1>
+        <p class="lead text-muted">Real-time insights for better decisions</p>
+    </div>
+
+    <!-- Date Filter – exact billing/list.html style -->
+    <div class="card shadow-sm mb-5 bg-dark text-white">
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Single Date</label>
+                    <input type="date" name="date" class="form-control bg-secondary text-white border-0"
+                           value="{{ request.args.get('date', '') }}">
+                </div>
+                <div class="col-md-1 text-center fw-bold pt-4">OR</div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">From Date</label>
+                    <input type="date" name="start_date" class="form-control bg-secondary text-white border-0"
+                           value="{{ request.args.get('start_date', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">To Date</label>
+                    <input type="date" name="end_date" class="form-control bg-secondary text-white border-0"
+                           value="{{ request.args.get('end_date', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+            <div class="mt-3">
+                <a href="{{ url_for('report.dashboard') }}" class="btn btn-outline-light btn-sm">
+                    Clear Filter (Show Today)
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-lg border-0 rounded-4 bg-gradient-primary text-white">
+                <div class="card-body text-center p-5">
+                    <div class="display-3 mb-3">💰</div>
+                    <h4 class="fw-bold">Revenue</h4>
+                    <h2 class="display-5 fw-bold">₹{{ total_revenue|round(2) }}</h2>
+                    <hr class="border-white opacity-50 my-4">
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="mb-1 opacity-75">Cash</p>
+                            <h5>₹{{ cash_revenue|round(2) }}</h5>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-1 opacity-75">Online</p>
+                            <h5>₹{{ online_revenue|round(2) }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-lg border-0 rounded-4 bg-gradient-danger text-white">
+                <div class="card-body text-center p-5">
+                    <div class="display-3 mb-3">📉</div>
+                    <h4 class="fw-bold">Expenses</h4>
+                    <h2 class="display-5 fw-bold">₹{{ monthly_expenses|round(2) }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-lg border-0 rounded-4 {{ 'bg-gradient-success' if profit_loss >= 0 else 'bg-gradient-danger' }} text-white">
+                <div class="card-body text-center p-5">
+                    <div class="display-3 mb-3">
+                        {% if profit_loss >= 0 %}📈{% else %}⚠️{% endif %}
+                    </div>
+                    <h4 class="fw-bold">Profit / Loss</h4>
+                    <h2 class="display-5 fw-bold">
+                        {% if profit_loss >= 0 %}
+                            ₹{{ profit_loss|round(2) }}
+                        {% else %}
+                            -₹{{ (-profit_loss)|round(2) }}
+                        {% endif %}
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Paid Orders -->
+    <div class="card shadow-lg border-0 mb-5">
+        <div class="card-header bg-dark text-white rounded-top-4">
+            <h4 class="mb-0 py-3">Recent Paid Orders</h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th class="ps-4">Day #</th>
+                            <th>Bill ID</th>
+                            <th>Amount</th>
+                            <th>Payment Mode</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in recent_bills %}
+                        <tr>
+                            <td class="ps-4 fw-bold">#{{ bill.day_sequence }}</td>
+                            <td>#{{ bill.id }}</td>
+                            <td class="fw-bold text-success">₹{{ bill.grand_total }}</td>
+                            <td>
+                                <span class="badge rounded-pill {{ 'bg-success' if bill.payment_mode == 'Cash' else 'bg-primary' }} px-3 py-2">
+                                    {{ bill.payment_mode }}
+                                </span>
+                            </td>
+                            <td>{{ bill.generated_at.strftime('%H:%M') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <h5>No paid orders in selected period</h5>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Inventory Expenses -->
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-dark text-white rounded-top-4">
+            <h4 class="mb-0 py-3">Recent Inventory Expenses</h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th class="ps-4">Item</th>
+                            <th>Added Quantity</th>
+                            <th>Amount</th>
+                            <th>Payment Mode</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in recent_expenses %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ expense.inventory.item_name }}</td>
+                            <td>+ {{ expense.added_quantity_with_unit }}</td>
+                            <td class="fw-bold text-danger">₹{{ expense.payment_amount }}</td>
+                            <td>
+                                <span class="badge rounded-pill {{ 'bg-success' if expense.payment_mode.value == 'CASH' else 'bg-primary' }} px-3 py-2">
+                                    {{ expense.payment_mode.value.capitalize() }}
+                                </span>
+                            </td>
+                            <td>{{ expense.date.strftime('%H:%M') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <h5>No inventory expenses in selected period</h5>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gradient CSS -->
+<style>
+    .bg-gradient-success { background: linear-gradient(135deg, #28a745, #20c997) !important; }
+    .bg-gradient-primary { background: linear-gradient(135deg, #007bff, #6610f2) !important; }
+    .bg-gradient-danger { background: linear-gradient(135deg, #dc3545, #fd7e14) !important; }
+    .card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important; }
+</style>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Add Quantity - {{ item.item_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Add Quantity to {{ item.item_name }}</h2>
+        <a href="{{ url_for('inventory.list') }}" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <p class="mb-4"><strong>Current Quantity:</strong> {{ item.quantity_with_unit }}</p>
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Added Quantity with Unit (e.g., 5 kg, 10 pcs)</label>
+                    <input type="text" name="added_quantity_with_unit" class="form-control" placeholder="5 kg" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Payment Amount for this addition</label>
+                    <input type="number" step="0.01" name="payment_amount" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Payment Mode</label>
+                    <select name="payment_mode" class="form-select" required>
+                        {% for mode in payment_modes %}
+                        <option value="{{ mode.value }}">{{ mode.value.capitalize() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-success btn-lg">Add Quantity</button>
+                    <a href="{{ url_for('inventory.list') }}" class="btn btn-secondary btn-lg ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

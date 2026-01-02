@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Invoice #{{ bill.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Invoice #{{ bill.id }}</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-success btn-lg shadow">
+                🖨️ Print Invoice
+            </button>
+            <a href="{{ url_for('billing.download_pdf', id=bill.id) }}" class="btn btn-secondary btn-lg shadow">
+                📄 Download PDF
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h4>Order ID: #{{ bill.order_id }}</h4>
+                    <p><strong>Date:</strong> {{ bill.generated_at.strftime('%d %B %Y') }}</p>
+                    <p><strong>Time:</strong> {{ bill.generated_at.strftime('%H:%M') }}</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <h3 class="text-primary">Hotel Management</h3>
+                    <p>Your Restaurant Address<br>Phone: 98765 43210</p>
+                </div>
+            </div>
+
+            <hr>
+
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>Items Total</th>
+                        <td class="text-end">₹{{ bill.total_items }}</td>
+                    </tr>
+                    <tr>
+                        <th>GST (18%)</th>
+                        <td class="text-end">₹{{ bill.gst }}</td>
+                    </tr>
+                    <tr>
+                        <th>Service Charge (5%)</th>
+                        <td class="text-end">₹{{ bill.service_charge }}</td>
+                    </tr>
+                    <tr class="table-success">
+                        <th><h4>Grand Total</h4></th>
+                        <td class="text-end"><h4>₹{{ bill.grand_total }}</h4></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="text-center mt-5">
+                <p class="text-muted">Thank you for your visit! 😊</p>
+                <p>Visit again!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Invoice #{{ bill.id }}</h2>
+        <div>
+                <button onclick="window.print()" class="btn btn-success btn-lg shadow me-2">
+                    🖨️ Print Bill
+                </button>
+                <a href="{{ url_for('billing.download_pdf', id=bill.id) }}" class="btn btn-secondary btn-lg shadow">
+                    📄 Download PDF
+                </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .container, .container * {
+            visibility: visible;
+        }
+        .container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}

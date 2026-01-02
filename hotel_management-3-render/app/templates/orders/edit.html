@@ -1,0 +1,63 @@
+<!-- New app/templates/orders/edit.html -->
+{% extends 'base.html' %}
+{% block title %}Edit Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Edit Order #{{ order.id }}</h2>
+    <p>Current Status: {{ order.status }}</p>
+    <p>Total Edits: {{ order.edit_count }}</p>
+
+    <h4>Original Items</h4>
+    <table class="table">
+        <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+        </tr>
+        {% for item in original_items %}
+        <tr>
+            <td>{{ item.menu_item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.price_at_time }}</td>
+            <td>₹{{ item.quantity * item.price_at_time }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h4>Added Items (From Previous Edits)</h4>
+    <table class="table">
+        <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+            <th>Added During Edit</th>
+        </tr>
+        {% for item in added_items %}
+        <tr>
+            <td>{{ item.menu_item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.price_at_time }}</td>
+            <td>₹{{ item.quantity * item.price_at_time }}</td>
+            <td>{{ item.added_after_edit }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h4>Add More Items</h4>
+    <form method="POST">
+        {% for category in categories %}
+            <h5>{{ category.name }}</h5>
+            {% for item in category.items if item.available %}
+                <div class="form-group">
+                    <label>{{ item.name }} - ₹{{ item.price }}</label>
+                    <input type="number" name="qty_{{ item.id }}" class="form-control" min="0" value="0">
+                </div>
+            {% endfor %}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+{% endblock %}

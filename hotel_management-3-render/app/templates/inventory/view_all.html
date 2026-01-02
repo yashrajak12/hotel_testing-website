@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Inventory View - Current Status{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Inventory View - Current Status</h2>
+        <a href="{{ url_for('inventory.list') }}" class="btn btn-secondary btn-lg">Back to List</a>
+    </div>
+
+    <div class="card shadow-lg border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Current Quantity</th>
+                            <th>Status</th>
+                            <th>Total Expense</th>
+                            <th>Last Addition</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr class="align-middle">
+                            <td class="fw-bold">{{ item.item_name }}</td>
+                            <td>{{ item.category.value.capitalize() }}</td>
+                            <td class="fw-bold fs-5">{{ item.quantity_with_unit }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('inventory.update_status', id=item.item_id) }}" class="d-inline">
+                                    <select name="status" onchange="this.form.submit()" class="form-select form-select-sm">
+                                        <option value="using" {% if item.status.value == 'using' %}selected{% endif %}>Using</option>
+                                        <option value="unused" {% if item.status.value == 'unused' %}selected{% endif %}>Unused</option>
+                                        <option value="broken" {% if item.status.value == 'broken' %}selected{% endif %}>Broken</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td class="fw-bold text-success fs-5">₹{{ item.total_expense|round(2) }}</td>
+                            <td>
+                                {% if item.last_expense %}
+                                <div class="small">
+                                    {{ item.last_expense.date.strftime('%d %b %Y, %I:%M %p') }}<br>
+                                    + {{ item.last_expense.added_quantity_with_unit }}<br>
+                                    <span class="badge {{ 'bg-success' if item.last_expense.payment_mode.value == 'CASH' else 'bg-primary' }}">
+                                        {{ item.last_expense.payment_mode.value.capitalize() }}
+                                    </span>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">No addition yet</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <!-- Only View Details Button -->
+                                <a href="{{ url_for('inventory.view', id=item.item_id) }}" class="btn btn-info btn-sm">
+                                    👁️ View Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <h5>No items in inventory</h5>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

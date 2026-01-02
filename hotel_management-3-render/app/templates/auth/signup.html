@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Hotel Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #30363d;
+        }
+
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border: none;
+            padding: 25px;
+            border-radius: 15px 15px 0 0 !important;
+        }
+
+        .card-header h4 {
+            margin: 0;
+            color: white;
+            font-weight: 700;
+        }
+
+        .card-header p {
+            margin: 5px 0 0 0;
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 15px;
+            border-radius: 8px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--bg-primary);
+            border-color: #3498db;
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .btn-success {
+            background: #2ecc71;
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-outline-primary {
+            color: #3498db;
+            border-color: #3498db;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
+        .btn-outline-primary:hover {
+            background: #3498db;
+            border-color: #3498db;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.3);
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+
+        .login-link {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+
+        .login-link p {
+            margin: 0 0 10px 0;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌓</button>
+
+    <div class="signup-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <div class="card-header text-center">
+                <h4>🏨 Create New Account</h4>
+                <p>Register for Hotel Management System</p>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Choose a username" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Create a strong password" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">Choose Your Role</option>
+                            <option value="ADMIN">👑 Admin</option>
+                            <option value="MANAGER">👔 Manager</option>
+                            <option value="CHEF">👨‍🍳 Chef</option>
+                            <option value="WAITER">🧑‍💼 Waiter</option>
+                            <option value="CASHIER">💰 Cashier</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        ✅ Register Account
+                    </button>
+                </form>
+
+                <div class="login-link">
+                    <p>Already have an account?</p>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
+                        🔐 Go to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        });
+
+        // Password match validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('❌ Passwords do not match!');
+            }
+        });
+    </script>
+</body>
+</html>

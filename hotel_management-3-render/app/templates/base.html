@@ -1,0 +1,317 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hotel Management{% endblock %}</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts: Cascadia Code (closest web-safe alternative is 'Cascadia Code' via CDN) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cascadia+Code:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: #ecf0f1;
+            --sidebar-hover: #34495e;
+            --border-color: #dee2e6;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --sidebar-bg: #0d1117;
+            --sidebar-text: #c9d1d9;
+            --sidebar-hover: #161b22;
+            --border-color: #30363d;
+            --shadow: rgba(0,0,0,0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Cascadia Code', 'Courier New', monospace; /* <-- GLOBAL FONT APPLIED */
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-weight: 600; /* SemiBold */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 260px;
+            background: var(--sidebar-bg);
+            padding: 0;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            color: var(--sidebar-text);
+            border-bottom: 1px solid var(--sidebar-hover);
+        }
+
+        .sidebar-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header small {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 15px 0;
+        }
+
+        .sidebar-menu li a {
+            display: block;
+            padding: 15px 25px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background: var(--sidebar-hover);
+            border-left-color: #3498db;
+        }
+
+        .sidebar-menu li a.logout {
+            color: #e74c3c;
+            margin-top: 30px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--bg-secondary);
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .top-bar h4 {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .top-bar small {
+            color: var(--text-secondary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Global Loader */
+        .global-loader-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+            transition: opacity 0.5s ease;
+        }
+
+        .loader {
+            width: 80px;
+            aspect-ratio: 1;
+            background:
+                radial-gradient(farthest-side,#ffa516 90%,#0000) center/18px 18px,
+                radial-gradient(farthest-side,green 90%,#0000) bottom/14px 14px;
+            background-repeat: no-repeat;
+            animation: l17 1s infinite linear;
+            position: relative;
+        }
+
+        .loader::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            aspect-ratio: 1;
+            inset: auto 0 18px;
+            margin: auto;
+            background: #ccc;
+            border-radius: 50%;
+            transform-origin: 50% calc(100% + 12px);
+            animation: inherit;
+            animation-duration: 0.5s;
+        }
+
+        @keyframes l17 {
+            100% { transform: rotate(1turn) }
+        }
+    </style>
+</head>
+<body>
+    <!-- Global Loader -->
+    <div class="global-loader-overlay" id="globalLoader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>🏨 Hotel Mang.</h3>
+            {% if current_user.is_authenticated %}
+                <small>{{ current_user.role.value }}</small>
+            {% endif %}
+        </div>
+        <ul class="sidebar-menu">
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('auth.dashboard') }}" class="{{ 'active' if request.endpoint == 'auth.dashboard' else '' }}">📊 Dashboard</a></li>
+
+                {% if current_user.role.value in ['Admin', 'Manager'] %}
+                    <li><a href="{{ url_for('menu.list') }}" class="{{ 'active' if 'menu' in request.endpoint else '' }}">📋 Menu</a></li>
+                    <li><a href="{{ url_for('employee.list') }}" class="{{ 'active' if 'employee' in request.endpoint else '' }}">👥 Employees</a></li>
+                    <li><a href="{{ url_for('inventory.list') }}" class="{{ 'active' if 'inventory' in request.endpoint else '' }}">📦 Inventory</a></li>
+                    <li><a href="{{ url_for('billing.list') }}" class="{{ 'active' if 'billing' in request.endpoint else '' }}">💰 Billing</a></li>
+                {% endif %}
+
+                <li><a href="{{ url_for('order.list') }}" class="{{ 'active' if 'order' in request.endpoint else '' }}">🍽️ Orders</a></li>
+                <li><a href="{{ url_for('report.dashboard') }}" class="{{ 'active' if request.endpoint == 'report.dashboard' else '' }}">📊 Reports</a></li>
+                <li><a href="{{ url_for('order.add') }}" class="{{ 'active' if request.endpoint == 'order.add' else '' }}">➕ New Order</a></li>
+                <li><a href="{{ url_for('auth.logout') }}" class="logout">🚪 Logout</a></li>
+            {% else %}
+                <li><a href="{{ url_for('auth.login') }}" class="active">🔐 Login</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div>
+                <h4>{% block page_title %}Dashboard{% endblock %}</h4>
+                <small id="currentDate"></small>
+            </div>
+            <div class="user-info">
+                <span class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌓</span>
+                {% if current_user.is_authenticated %}
+                    <div class="user-avatar">{{ current_user.username[0]|upper }}</div>
+                    <div>
+                        <strong>{{ current_user.username }}</strong><br>
+                        <small style="color: var(--text-secondary);">{{ current_user.role.value }}</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="content-area container-fluid py-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                const today = new Date();
+                dateElement.textContent = today.toLocaleDateString('en-US', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+            }
+        });
+
+        // Hide loader on page load
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('globalLoader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; }, 600);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>Welcome, {{ current_user.username }}!</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Role:</strong> {{ current_user.role.value }}</p>
+            <hr>
+
+            {% if current_user.role.value == 'Admin' %}
+                <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg mb-3">
+                    Register New Staff
+                </a>
+                <hr>
+            {% endif %}
+
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-danger btn-lg">
+                Logout
+            </a>
+
+            <hr>
+            <p class="text-muted mt-4">
+                This is your dashboard. More role-based features coming in next stages!
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

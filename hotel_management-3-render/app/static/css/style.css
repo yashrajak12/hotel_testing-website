@@ -1,0 +1,27 @@
+/* Basic custom styles for better look */
+body {
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.btn {
+    border-radius: 8px;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+}
+
+h4 {
+    font-weight: 600;
+}

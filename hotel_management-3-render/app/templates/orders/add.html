@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}New Order{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">🛒 Place New Order</h2>
+
+    <form method="POST" id="orderForm">
+        <div class="row g-4">
+            <!-- Order Details -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Order Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Order Type</label>
+                            <select name="order_type" id="orderType" class="form-select" required>
+                                <option value="">Select Type</option>
+                                <option value="Dine-in">🍽️ Dine-in</option>
+                                <option value="Parcel">📦 Parcel/Takeaway</option>
+                            </select>
+                        </div>
+
+                        <div id="tableField" class="mb-3" style="display:none;">
+                            <label class="form-label">Table Number</label>
+                            <input type="text" name="table_number" class="form-control" placeholder="e.g., T-05">
+                        </div>
+
+                        <div id="customerField" class="mb-3" style="display:none;">
+                            <label class="form-label">Customer Name</label>
+                            <input type="text" name="customer_name" class="form-control" placeholder="e.g., Rahul Sharma">
+                        </div>
+
+                        <div class="pt-3 border-top">
+                            <h5>Total: <span id="totalAmount">₹0.00</span></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Menu Selection -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">🍴 Select Items</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Select Category</label>
+                                <select id="categorySelect" class="form-select">
+                                    <option value="">-- Choose Category --</option>
+                                    {% for category in categories %}
+                                        {% if category.items|selectattr('available', 'equalto', True)|list %}
+                                            <option value="{{ category.id }}">{{ category.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="itemsContainer" style="display:none;">
+                            <h6 class="text-primary mb-3">Available Items</h6>
+                            <div id="itemsList"></div>
+                        </div>
+
+                        <div id="noItemsMsg" class="alert alert-info text-center" style="display:none;">
+                            No available items in this category.
+                        </div>
+
+                        <div id="selectedItems" class="mt-4">
+                            <h6>Selected Items:</h6>
+                            <table class="table table-sm table-bordered" id="selectedTable" style="display:none;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Price</th>
+                                        <th>Qty</th>
+                                        <th>Subtotal</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <button type="submit" class="btn btn-success btn-lg px-5" id="placeOrderBtn" disabled>
+                            ✅ Place Order
+                        </button>
+                        <a href="{{ url_for('order.list') }}" class="btn btn-outline-secondary btn-lg px-5">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- All menu items data for JS -->
+<script type="text/javascript">
+    const menuData = {
+        {% for category in categories %}
+            "{{ category.id }}": [
+                {% for item in category.items if item.available %}
+                    {
+                        id: {{ item.id }},
+                        name: "{{ item.name }}",
+                        price: {{ item.price }}
+                    },
+                {% endfor %}
+            ],
+        {% endfor %}
+    };
+
+    document.getElementById('orderType').addEventListener('change', function() {
+        const type = this.value;
+        document.getElementById('tableField').style.display = type === 'Dine-in' ? 'block' : 'none';
+        document.getElementById('customerField').style.display = type === 'Parcel' ? 'block' : 'none';
+    });
+
+    document.getElementById('categorySelect').addEventListener('change', function() {
+        const catId = this.value;
+        const container = document.getElementById('itemsContainer');
+        const list = document.getElementById('itemsList');
+        const noMsg = document.getElementById('noItemsMsg');
+
+        list.innerHTML = '';
+        container.style.display = 'none';
+        noMsg.style.display = 'none';
+
+        if (catId && menuData[catId] && menuData[catId].length > 0) {
+            container.style.display = 'block';
+            menuData[catId].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'd-flex justify-content-between align-items-center border rounded p-3 mb-3 bg-light';
+                div.innerHTML = `
+                    <div>
+                        <h6 class="mb-1">${item.name}</h6>
+                        <small class="text-success fw-bold">₹${item.price}</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="me-2">Qty:</label>
+                        <input type="number" min="0" value="0" class="form-control qty-input" style="width:80px;"
+                               data-item-id="${item.id}" data-price="${item.price}">
+                        <button type="button" class="btn btn-sm btn-primary add-btn" data-item-id="${item.id}"
+                                data-name="${item.name}" data-price="${item.price}">Add</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+
+            // Add button listeners
+            document.querySelectorAll('.add-btn').forEach(btn => {
+                btn.addEventListener('click', addToOrder);
+            });
+            document.querySelectorAll('.qty-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    if (parseInt(this.value) > 0) {
+                        this.closest('.d-flex').querySelector('.add-btn').click();
+                        this.value = 0;
+                    }
+                });
+            });
+        } else if (catId) {
+            noMsg.style.display = 'block';
+        }
+    });
+
+    const selectedItems = {};
+
+    function addToOrder(e) {
+        const btn = e.target;
+        const itemId = btn.dataset.itemId;
+        const name = btn.dataset.name;
+        const price = parseFloat(btn.dataset.price);
+        const qtyInput = btn.closest('.d-flex').querySelector('.qty-input');
+        let qty = parseInt(qtyInput.value) || 1;
+
+        if (qty <= 0) return;
+
+        if (selectedItems[itemId]) {
+            selectedItems[itemId].qty += qty;
+        } else {
+            selectedItems[itemId] = { name, price, qty };
+        }
+
+        qtyInput.value = 0;
+        updateSelectedTable();
+    }
+
+    function updateSelectedTable() {
+        const tbody = document.querySelector('#selectedTable tbody');
+        const table = document.getElementById('selectedTable');
+        tbody.innerHTML = '';
+        let total = 0;
+
+        for (const id in selectedItems) {
+            const item = selectedItems[id];
+            const subtotal = item.qty * item.price;
+            total += subtotal;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}<input type="hidden" name="qty_${id}" value="${item.qty}"></td>
+                <td>₹${item.price}</td>
+                <td>${item.qty}</td>
+                <td>₹${subtotal.toFixed(2)}</td>
+                <td><button type="button" class="btn btn-sm btn-danger" onclick="removeItem('${id}')">✖</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        document.getElementById('totalAmount').textContent = '₹' + total.toFixed(2);
+        table.style.display = Object.keys(selectedItems).length > 0 ? 'table' : 'none';
+        document.getElementById('placeOrderBtn').disabled = Object.keys(selectedItems).length === 0;
+    }
+
+    function removeItem(id) {
+        delete selectedItems[id];
+        updateSelectedTable();
+    }
+</script>
+{% endblock %}

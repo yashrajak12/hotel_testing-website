@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Menu Management{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Menu Management</h2>
+        <a href="{{ url_for('menu.add_edit') }}" class="btn btn-success btn-lg">
+            ➕ Add New Item
+        </a>
+    </div>
+
+    {% for category in categories %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">{{ category.name }}</h4>
+            </div>
+            <div class="card-body">
+                {% if category.items %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Price</th>
+                                    <th>Available</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in category.items %}
+                                <tr>
+                                    <td>{{ item.name }}</td>
+                                    <td>₹{{ item.price }}</td>
+                                    <td>
+                                        {% if item.available %}
+                                            <span class="badge bg-success">Yes</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">No</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('menu.add_edit', id=item.id) }}"
+                                           class="btn btn-sm btn-warning">
+                                            ✏️ Edit
+                                        </a>
+                                        {% if current_user.role.value == 'Admin' %}
+                                            <a href="{{ url_for('menu.delete', id=item.id) }}"
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('Are you sure you want to delete {{ item.name }}?')">
+                                                🗑️ Delete
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No items in this category yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            📝 No categories yet. Add menu items to create them automatically.
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

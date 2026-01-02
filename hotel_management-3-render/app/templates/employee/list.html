@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}All Employees{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Employees List</h2>
+        </div>
+        <div>
+            <a href="{{ url_for('employee.attendance') }}" class="btn btn-primary me-2">
+                <i class="bi bi-calendar-check"></i> Mark Attendance
+            </a>
+            <a href="{{ url_for('employee.add_edit') }}" class="btn btn-success">
+                <i class="bi bi-plus-lg"></i> Add New Employee
+            </a>
+        </div>
+    </div>
+
+    {% if employees %}
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-center">ID</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Phone</th>
+                            <th>Salary (₹)</th>
+                            <th>Hire Date</th>
+                            <th>Resign Date</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        <tr>
+                            <td class="text-center fw-bold">{{ emp.id }}</td>
+                            <td>{{ emp.name }}</td>
+                            <td>{{ emp.role.value if emp.role else '-' }}</td>
+                            <td>{{ emp.phone or '-' }}</td>
+                            <td class="fw-bold">{{ emp.salary|round(2) }}</td>
+                            <td>{{ emp.hire_date.strftime('%d-%m-%Y') if emp.hire_date else '-' }}</td>
+                            <td>{{ emp.resign_date.strftime('%d-%m-%Y') if emp.resign_date else '-' }}</td>
+                            <td class="text-center">
+                                <a href="{{ url_for('employee.add_edit', id=emp.id) }}"
+                                   class="btn btn-sm btn-warning me-1">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                {% if current_user.role == 'Admin' %}
+                                <a href="{{ url_for('employee.delete', id=emp.id) }}"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Delete {{ emp.name }}?');">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center py-5">
+        <h4>No employees found</h4>
+        <p>Click "Add New Employee" to get started.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
