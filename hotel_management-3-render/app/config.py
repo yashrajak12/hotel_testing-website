@@ -12,9 +12,11 @@ class Config:
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,     
         "pool_recycle": 300,      
-        "pool_size": 10,
-        "max_overflow": 5,
+        "pool_size": 5,
+        "max_overflow": 10,
+        "connect_args": {"sslmode": "require"}
     }
 
     SECRET_KEY = os.getenv('SECRET_KEY') or 'fallback-secret-key-for-development-only-do-not-use-in-production'
+
 
