@@ -1,7 +1,8 @@
 from flask import Flask
 from .config import Config
 from .extensions import db, login_manager
-import os  
+import os
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -34,12 +35,12 @@ def create_app():
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(attendance_bp)
 
-    # Tables create only in development ya manual migration mein
-    # Production mein db.create_all() mat chalao — flask-migrate use karo
+    # Tables aur default admin sirf development mein banao
+    # Production mein yeh skip ho jayega (flask-migrate use karo)
     if os.getenv('FLASK_ENV') == 'development':
         with app.app_context():
             db.create_all()
-            # Default admin user (sirf development mein)
+            # Default admin user
             from .models.user import User, Role
             from werkzeug.security import generate_password_hash
 
