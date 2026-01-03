@@ -1,7 +1,7 @@
 from flask import Flask
 from .config import Config
 from .extensions import db, login_manager
-
+import os  
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -21,7 +21,7 @@ def create_app():
     from .routes.inventory_routes import inventory_bp
     from .routes.report_routes import report_bp
     from .routes.dashboard_routes import dashboard_bp
-    from .routes.attendance_routes import attendance_bp  # ← Yeh line add kar di
+    from .routes.attendance_routes import attendance_bp
 
     # Register blueprints
     app.register_blueprint(auth_bp)
@@ -32,19 +32,21 @@ def create_app():
     app.register_blueprint(inventory_bp)
     app.register_blueprint(report_bp)
     app.register_blueprint(dashboard_bp)
-    app.register_blueprint(attendance_bp)  # ← Yeh line add kar di
+    app.register_blueprint(attendance_bp)
 
-    with app.app_context():
-        db.create_all()
+    # Tables create only in development ya manual migration mein
+    # Production mein db.create_all() mat chalao — flask-migrate use karo
+    if os.getenv('FLASK_ENV') == 'development':
+        with app.app_context():
+            db.create_all()
+            # Default admin user (sirf development mein)
+            from .models.user import User, Role
+            from werkzeug.security import generate_password_hash
 
-        # Default admin user
-        from .models.user import User, Role
-        from werkzeug.security import generate_password_hash
-
-        if not User.query.filter_by(username='admin').first():
-            admin = User(username='admin', role=Role.ADMIN)
-            admin.set_password('admin123')
-            db.session.add(admin)
-            db.session.commit()
+            if not User.query.filter_by(username='admin').first():
+                admin = User(username='admin', role=Role.ADMIN)
+                admin.set_password('admin123')
+                db.session.add(admin)
+                db.session.commit()
 
     return app
